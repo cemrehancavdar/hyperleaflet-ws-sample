@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>WS</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script defer src="https://www.unpkg.com/hyperleaflet"></script>
+    <style>
+        #map {
+            width: 100%;
+            height: 500px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map">
+        <div data-hyperleaflet-source>
+            <div id="ws-lines"></div>
+        </div>
+    </div>
+
+
+    <script>
+        const hyperleafletSource = document.querySelector("#ws-lines")
+        var ws = new WebSocket("ws://localhost:8000/ws");
+        let idCounter = 1 
+        let lastCoords = null
+        ws.onmessage = function (event) {
+            const data = JSON.parse(event.data) 
+            if (lastCoords) {
+                hyperleafletSource.innerHTML += `
+                <span
+                data-id="${idCounter}"
+                data-geometry-type="LineString"
+                data-geometry="[[${lastCoords.lat},${lastCoords.lon}],[${data.lat},${data.lon}],[${lastCoords.lat},${lastCoords.lon}]]"
+              ></span>            
+                `
+                idCounter += 1
+            }
+            lastCoords = data
+
+        };
+    </script>
+
+</body>
+
+</html>
